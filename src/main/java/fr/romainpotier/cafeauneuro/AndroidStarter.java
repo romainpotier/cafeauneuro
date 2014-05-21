@@ -34,6 +34,7 @@ public class AndroidStarter extends Activity {
         mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
         mMap.addMarker(new MarkerOptions().position(new LatLng(48.8353182, 2.2949952999999823)).title("Domicile"));
         mMap.addMarker(new MarkerOptions().position(new LatLng(47.165661, -1.50709)).title("Parents"));
+        mMap.setMyLocationEnabled(true);
     }
 
     // @Click
