@@ -1,20 +1,14 @@
 package fr.romainpotier.cafeauneuro;
 
-import java.util.List;
-
-import org.androidannotations.annotations.Background;
-import org.androidannotations.annotations.Click;
+import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EActivity;
-import org.androidannotations.annotations.UiThread;
-import org.androidannotations.annotations.ViewById;
-import org.androidannotations.annotations.rest.RestService;
 
 import android.app.Activity;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-import android.widget.TextView;
-import fr.romainpotier.cafeauneuro.beans.Movie;
-import fr.romainpotier.cafeauneuro.service.MoviesService;
+
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 /**
  * Simple activity for testing REST webservice
@@ -24,32 +18,41 @@ import fr.romainpotier.cafeauneuro.service.MoviesService;
 @EActivity(R.layout.activity_main)
 public class AndroidStarter extends Activity {
 
-    @ViewById
-    TextView textView;
+    // @ViewById
+    // TextView textView;
+    //
+    // @ViewById
+    // ListView listView;
+    //
+    // @RestService
+    // MoviesService moviesService;
 
-    @ViewById
-    ListView listView;
+    private GoogleMap mMap;
 
-    @RestService
-    MoviesService moviesService;
-
-    @Click
-    void callRestService() {
-        callMoviesService();
+    @AfterViews
+    void init() {
+        mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
+        mMap.addMarker(new MarkerOptions().position(new LatLng(48.8353182, 2.2949952999999823)).title("Domicile"));
+        mMap.addMarker(new MarkerOptions().position(new LatLng(47.165661, -1.50709)).title("Parents"));
     }
 
-    @Background
-    void callMoviesService() {
-        // Call service
-        List<Movie> movies = moviesService.getMovies();
-        updateListView(movies);
-    }
-
-    @UiThread
-    void updateListView(final List<Movie> movies) {
-        // Create custom adapter
-        final ArrayAdapter<Movie> arrayAdapter = new ArrayAdapter<Movie>(this, android.R.layout.simple_list_item_1, movies);
-        listView.setAdapter(arrayAdapter);
-    }
+    // @Click
+    // void callRestService() {
+    // callMoviesService();
+    // }
+    // @Background
+    // void callMoviesService() {
+    // // Call service
+    // List<Movie> movies = moviesService.getMovies();
+    // updateListView(movies);
+    // }
+    //
+    // @UiThread
+    // void updateListView(final List<Movie> movies) {
+    // // Create custom adapter
+    // final ArrayAdapter<Movie> arrayAdapter = new ArrayAdapter<Movie>(this, android.R.layout.simple_list_item_1,
+    // movies);
+    // listView.setAdapter(arrayAdapter);
+    // }
 
 }
