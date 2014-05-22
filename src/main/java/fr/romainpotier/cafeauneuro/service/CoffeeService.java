@@ -1,21 +1,19 @@
 package fr.romainpotier.cafeauneuro.service;
 
-import java.util.List;
-
 import org.androidannotations.annotations.rest.Get;
 import org.androidannotations.annotations.rest.Rest;
 import org.springframework.http.converter.json.MappingJacksonHttpMessageConverter;
 
-import fr.romainpotier.cafeauneuro.beans.Movie;
+import fr.romainpotier.cafeauneuro.beans.ApiResult;
 
 /**
  * REST webservice example
  * 
  * @author Romain Potier
  */
-@Rest(rootUrl = "http://176.31.101.144:99", converters = { MappingJacksonHttpMessageConverter.class })
-public interface MoviesService {
+@Rest(rootUrl = "http://opendata.paris.fr/api/records/1.0", converters = { MappingJacksonHttpMessageConverter.class })
+public interface CoffeeService {
 
-    @Get("/movies")
-    List<Movie> getMovies();
+    @Get("/search?dataset=liste-des-cafes-a-un-euro&rows=10000")
+    ApiResult getCoffees();
 }
