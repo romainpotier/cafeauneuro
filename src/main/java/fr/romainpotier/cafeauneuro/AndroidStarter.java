@@ -27,8 +27,10 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import fr.romainpotier.cafeauneuro.beans.ApiResult;
+import fr.romainpotier.cafeauneuro.beans.Coordinates;
 import fr.romainpotier.cafeauneuro.beans.Fields;
 import fr.romainpotier.cafeauneuro.beans.Record;
+import fr.romainpotier.cafeauneuro.beans.SpecificMarker;
 import fr.romainpotier.cafeauneuro.service.CoffeeService;
 
 /**
@@ -46,16 +48,18 @@ public class AndroidStarter extends Activity {
 
     private GoogleMap mMap;
 
+    // POIs
     private ApiResult result;
 
+    // Visible markers simultaneously
     private final static int VISIBLE_MARKER = 50;
 
     // State values
     private boolean updatedMap = false;
     private boolean markerClicked = false;
 
-    // Map for marker's informations
-    private Map<Marker, String> markersInformations;
+    // Map for marker's informations, current visible
+    private final Map<Coordinates, SpecificMarker> markersInformations = new HashMap<>();
 
     @AfterViews
     void init() {
@@ -133,16 +137,12 @@ public class AndroidStarter extends Activity {
 
         updatedMap = true;
 
-        mMap.clear();
-
         // Init params
         final LatLngBounds bounds = mMap.getProjection().getVisibleRegion().latLngBounds;
-        double latitude = Double.MAX_VALUE;
-        double longitude = Double.MAX_VALUE;
         int rang = 0;
         MarkerOptions marker = null;
-        markersInformations = new HashMap<>();
         Fields fields = null;
+        Coordinates coordinates = null;
 
         for (Record record : result.getRecords()) {
 
@@ -150,29 +150,49 @@ public class AndroidStarter extends Activity {
 
             if (fields != null && fields.getGeo_latitude() != null) {
 
-                latitude = record.getFields().getGeo_latitude().get(0);
-                longitude = record.getFields().getGeo_latitude().get(1);
+                coordinates = new Coordinates(record.getFields().getGeo_latitude().get(0), record.getFields().getGeo_latitude().get(1));
 
-                if (bounds.contains(new LatLng(latitude, longitude))) {
+                if (bounds.contains(new LatLng(coordinates.getLatitude(), coordinates.getLongitude()))) {
 
-                    marker = new MarkerOptions() //
-                            .position(new LatLng(latitude, longitude)) //
-                            .title(record.getFields().getNom());
+                    // If marker not already visible
+                    if (!markersInformations.containsKey(coordinates)) {
 
-                    Marker addedMarker = mMap.addMarker(marker);
+                        marker = new MarkerOptions() //
+                                .position(new LatLng(coordinates.getLatitude(), coordinates.getLongitude())) //
+                                .title(record.getFields().getNom());
 
-                    markersInformations.put(addedMarker, getMarkerInformations(fields));
+                        Marker addedMarker = mMap.addMarker(marker);
+
+                        markersInformations.put(coordinates, getSpecificMarker(addedMarker, fields));
+
+                    }
 
                     if (rang++ == VISIBLE_MARKER) {
                         break;
                     }
 
                 }
+            } else {
+
+                // if marker visible, hide it
+                if (markersInformations.containsKey(coordinates)) {
+                    final SpecificMarker specificMarker = markersInformations.get(coordinates);
+                    specificMarker.getMarker().remove();
+                    markersInformations.remove(coordinates);
+                }
+
             }
         }
 
         updatedMap = false;
 
+    }
+
+    private SpecificMarker getSpecificMarker(final Marker marker, final Fields fields) {
+        SpecificMarker specificMarker = new SpecificMarker();
+        specificMarker.setMarker(marker);
+        specificMarker.setMarkerInformations(getMarkerInformations(fields));
+        return specificMarker;
     }
 
     private String getMarkerInformations(final Fields fields) {
@@ -190,8 +210,9 @@ public class AndroidStarter extends Activity {
     }
 
     private void showMarkerInformations(final Marker marker) {
-        if (markersInformations.containsKey(marker)) {
-            Toast.makeText(this, markersInformations.get(marker), Toast.LENGTH_SHORT).show();
+        final Coordinates coordinates = new Coordinates(marker.getPosition().latitude, marker.getPosition().longitude);
+        if (markersInformations.containsKey(coordinates)) {
+            Toast.makeText(this, markersInformations.get(coordinates).getMarkerInformations(), Toast.LENGTH_SHORT).show();
         }
     }
 
