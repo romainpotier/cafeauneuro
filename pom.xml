@@ -8,6 +8,18 @@
 	<packaging>apk</packaging>
 	<name>CafeAUnEuro</name>
 
+	<repositories>
+		<repository>
+			<id>couchbase</id>
+			<name>Couchbase Maven Repository</name>
+			<layout>default</layout>
+			<url>http://files.couchbase.com/maven2/</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
@@ -56,7 +68,7 @@
 			<artifactId>jackson-mapper-asl</artifactId>
 			<version>1.9.3</version>
 		</dependency>
-	 	<dependency>
+		<dependency>
 			<groupId>com.google.android.gms</groupId>
 			<artifactId>google-play-services</artifactId>
 			<version>17.0.0</version>
@@ -68,7 +80,12 @@
 			<version>17.0.0</version>
 			<type>jar</type>
 		</dependency>
-		
+		<dependency>
+			<groupId>com.couchbase.lite</groupId>
+			<artifactId>android</artifactId>
+			<version>1.0.0-54</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>
