@@ -1,10 +1,12 @@
 package fr.romainpotier.cafeauneuro;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Background;
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.UiThread;
 import org.androidannotations.annotations.rest.RestService;
@@ -31,6 +33,7 @@ import fr.romainpotier.cafeauneuro.beans.Coordinates;
 import fr.romainpotier.cafeauneuro.beans.Fields;
 import fr.romainpotier.cafeauneuro.beans.Record;
 import fr.romainpotier.cafeauneuro.beans.SpecificMarker;
+import fr.romainpotier.cafeauneuro.couchbase.MyManager;
 import fr.romainpotier.cafeauneuro.service.CoffeeService;
 
 /**
@@ -43,6 +46,9 @@ public class AndroidStarter extends Activity {
 
     @RestService
     CoffeeService coffeeService;
+
+    @Bean
+    MyManager myManager;
 
     private ProgressDialog progress;
 
@@ -114,7 +120,16 @@ public class AndroidStarter extends Activity {
 
     @Background
     void loadCoffees() {
-        result = coffeeService.getCoffees();
+
+        // Try to get from database
+        List<Record> records = myManager.getDocuments(Record.class);
+        if (records == null || records.size() == 0) {
+            result = coffeeService.getCoffees();
+            myManager.addDocuments(result.getRecords());
+        } else {
+            result = new ApiResult();
+            result.setRecords(records);
+        }
         updateMap();
     }
 

@@ -13,9 +13,18 @@
 			<id>couchbase</id>
 			<name>Couchbase Maven Repository</name>
 			<layout>default</layout>
-			<url>http://files.couchbase.com/maven2/</url>
+			<url>http://files.couchbase.com/maven2</url>
 			<snapshots>
-				<enabled>true</enabled>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>central</id>
+			<name>Maven Repository Switchboard</name>
+			<layout>default</layout>
+			<url>http://repo1.maven.org/maven2</url>
+			<snapshots>
+				<enabled>false</enabled>
 			</snapshots>
 		</repository>
 	</repositories>
@@ -84,8 +93,27 @@
 			<groupId>com.couchbase.lite</groupId>
 			<artifactId>android</artifactId>
 			<version>1.0.0-54</version>
+			<type>aar</type>
 		</dependency>
+		<dependency>
+			<groupId>com.couchbase.cblite</groupId>
+			<artifactId>td_collator_so</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<!-- <dependency>
+			<groupId>com.couchbase.lite</groupId>
+			<artifactId>java-core</artifactId>
+			<version>1.0.0-54</version>
+			<type>jar</type>
+		</dependency> -->
 
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>2.2.3</version>
+		</dependency>
+		
+		
 	</dependencies>
 
 	<build>
