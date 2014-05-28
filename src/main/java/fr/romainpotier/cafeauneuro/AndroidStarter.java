@@ -11,7 +11,10 @@ import org.androidannotations.annotations.rest.RestService;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.location.Location;
+import android.text.TextUtils;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -25,6 +28,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.gson.Gson;
 
 import fr.romainpotier.cafeauneuro.beans.ApiResult;
 import fr.romainpotier.cafeauneuro.beans.Coordinates;
@@ -60,6 +64,8 @@ public class AndroidStarter extends Activity {
 
     // Map for marker's informations, current visible
     private final Map<Coordinates, SpecificMarker> markersInformations = new HashMap<>();
+
+    private final Gson gson = new Gson();
 
     @AfterViews
     void init() {
@@ -114,7 +120,23 @@ public class AndroidStarter extends Activity {
 
     @Background
     void loadCoffees() {
-        result = coffeeService.getCoffees();
+
+        final SharedPreferences prefs = this.getSharedPreferences("fr.romainpotier", Context.MODE_PRIVATE);
+
+        final String coffees = prefs.getString("coffees", "");
+        String text = "from pref";
+
+        if (TextUtils.isEmpty(coffees)) {
+            result = coffeeService.getCoffees();
+            // Save in prefs
+            prefs.edit().putString("coffees", gson.toJson(result)).commit();
+            text = "from web";
+        } else {
+            result = gson.fromJson(coffees, ApiResult.class);
+        }
+
+        Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
+
         updateMap();
     }
 
