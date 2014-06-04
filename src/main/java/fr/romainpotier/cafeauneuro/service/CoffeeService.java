@@ -1,19 +1,63 @@
 package fr.romainpotier.cafeauneuro.service;
 
-import org.androidannotations.annotations.rest.Get;
-import org.androidannotations.annotations.rest.Rest;
-import org.springframework.http.converter.json.MappingJacksonHttpMessageConverter;
+import static android.text.TextUtils.isEmpty;
+
+import org.androidannotations.annotations.AfterInject;
+import org.androidannotations.annotations.Bean;
+import org.androidannotations.annotations.EBean;
+import org.androidannotations.annotations.RootContext;
+import org.androidannotations.annotations.rest.RestService;
+
+import android.content.Context;
+import android.content.SharedPreferences;
+
+import com.google.gson.Gson;
 
 import fr.romainpotier.cafeauneuro.beans.ApiResult;
 
-/**
- * REST webservice example
- * 
- * @author Romain Potier
- */
-@Rest(rootUrl = "http://opendata.paris.fr/api/records/1.0", converters = { MappingJacksonHttpMessageConverter.class })
-public interface CoffeeService {
+@EBean
+public class CoffeeService {
 
-    @Get("/search?dataset=liste-des-cafes-a-un-euro&rows=10000")
-    ApiResult getCoffees();
+    @RestService
+    CoffeeRestService coffeeRestService;
+
+    @Bean
+    RestServiceErrorHandler restServiceErrorHandler;
+
+    @RootContext
+    Context context;
+
+    private final Gson gson = new Gson();
+
+    // Static vars
+    private static final String PREFS_FILE = "fr.romainpotier";
+    private static final String COFFEE_VAR = "coffees";
+
+    @AfterInject
+    void afterInject() {
+        coffeeRestService.setRestErrorHandler(restServiceErrorHandler);
+    }
+
+    public ApiResult loadCoffees() {
+
+        final SharedPreferences prefs = context.getSharedPreferences(PREFS_FILE, Context.MODE_PRIVATE);
+
+        final String coffees = prefs.getString(COFFEE_VAR, "");
+
+        ApiResult result = null;
+
+        if (isEmpty(coffees)) {
+            result = coffeeRestService.getCoffees();
+            if (result != null) {
+                // Save in prefs
+                prefs.edit().putString("coffees", gson.toJson(result)).commit();
+            }
+        } else {
+            result = gson.fromJson(coffees, ApiResult.class);
+        }
+
+        return result;
+
+    }
+
 }

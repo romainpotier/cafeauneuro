@@ -4,5 +4,6 @@
 	<string name="hello_world">Hello world!</string>
 	<string name="menu_settings">Settings</string>
 	<string name="callRestService">Call Rest Service</string>
+	<string name="errorService">Error during the coffees sync</string>
 
 </resources>

@@ -5,16 +5,13 @@ import java.util.Map;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Background;
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.UiThread;
-import org.androidannotations.annotations.rest.RestService;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.location.Location;
-import android.text.TextUtils;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -23,12 +20,12 @@ import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMyLocationChangeListener;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.gson.Gson;
 
 import fr.romainpotier.cafeauneuro.beans.ApiResult;
 import fr.romainpotier.cafeauneuro.beans.Coordinates;
@@ -45,7 +42,7 @@ import fr.romainpotier.cafeauneuro.service.CoffeeService;
 @EActivity(R.layout.activity_main)
 public class AndroidStarter extends Activity {
 
-    @RestService
+    @Bean
     CoffeeService coffeeService;
 
     private ProgressDialog progress;
@@ -64,8 +61,6 @@ public class AndroidStarter extends Activity {
 
     // Map for marker's informations, current visible
     private final Map<Coordinates, SpecificMarker> markersInformations = new HashMap<>();
-
-    private final Gson gson = new Gson();
 
     @AfterViews
     void init() {
@@ -120,35 +115,18 @@ public class AndroidStarter extends Activity {
 
     @Background
     void loadCoffees() {
-
-        final SharedPreferences prefs = this.getSharedPreferences("fr.romainpotier", Context.MODE_PRIVATE);
-
-        final String coffees = prefs.getString("coffees", "");
-        String text = "from pref";
-
-        if (TextUtils.isEmpty(coffees)) {
-            result = coffeeService.getCoffees();
-            // Save in prefs
-            prefs.edit().putString("coffees", gson.toJson(result)).commit();
-            text = "from web";
-        } else {
-            result = gson.fromJson(coffees, ApiResult.class);
+        result = coffeeService.loadCoffees();
+        if (progress.isShowing()) {
+            progress.dismiss();
         }
-
-        Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
-
-        updateMap();
+        if (result != null) {
+            updateMap();
+        }
     }
 
     @UiThread
     void updateMap() {
-
-        if (progress.isShowing()) {
-            progress.dismiss();
-        }
-
         addMarkerToMap();
-
     }
 
     private void addMarkerToMap() {
@@ -181,7 +159,8 @@ public class AndroidStarter extends Activity {
 
                         marker = new MarkerOptions() //
                                 .position(new LatLng(coordinates.getLatitude(), coordinates.getLongitude())) //
-                                .title(record.getFields().getNom());
+                                .title(record.getFields().getNom()) //
+                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_launcher));
 
                         Marker addedMarker = mMap.addMarker(marker);
 
