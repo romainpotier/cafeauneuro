@@ -160,7 +160,7 @@ public class AndroidStarter extends Activity {
                         marker = new MarkerOptions() //
                                 .position(new LatLng(coordinates.getLatitude(), coordinates.getLongitude())) //
                                 .title(record.getFields().getNom()) //
-                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_launcher));
+                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.pincoffee));
 
                         Marker addedMarker = mMap.addMarker(marker);
 
