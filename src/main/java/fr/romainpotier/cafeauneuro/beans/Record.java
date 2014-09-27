@@ -6,6 +6,15 @@ public class Record {
     private String recordid;
     private Fields fields;
     private Geometry geometry;
+    private String record_timestamp;
+
+    public String getRecord_timestamp() {
+        return record_timestamp;
+    }
+
+    public void setRecord_timestamp(String record_timestamp) {
+        this.record_timestamp = record_timestamp;
+    }
 
     public String getDatasetid() {
         return datasetid;
